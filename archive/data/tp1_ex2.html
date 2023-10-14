@@ -14,6 +14,7 @@
         let canvas;    // Objet DOM correspondant au canvas
         let graphics;  // Contexte de graphique 2d pour dessiner sur la canvas
 
+
         // Variable pour la position des étoiles
         let constellations = [];
 
@@ -59,11 +60,51 @@
         }
 
         function generate_city() {
-            // TODO: Complétez cette fonction pour la partie 2
+            const buildingDepth = [0.2, 0.5, 1.0];
+
+            // Choisir aléatoirement height et depth pour chaque bâtiment
+            for (let i = 0; i < cityLength; i++) {
+                const depthIndex = Math.floor(Math.random() * 3); 
+                const depth = buildingDepth[depthIndex];
+                const height = Math.random() * (canvas.height * 0.5) + 50; 
+
+                // Choisir la couleur du bâtiment en fonction de la profondeur
+                if (depthIndex === 0) {
+                    color = close_build_color;
+                } else if (depthIndex === 1) {
+                    color = middle_building_color;
+                } else {
+                    color = far_building_color;
+                }
+            
+                // Position du bâtiment initial
+                const position = canvas.width + (i * buildingWidth * canvas.width); 
+
+                // Ajouter le bâtiment à la liste
+                if (depthIndex === 0) {
+                    closeBuildingsHeights.push(height);
+                    closeBuildingsPos.push(position);
+                } else if (depthIndex === 1) {
+                    middleBuildingsHeights.push(height);
+                    middleBuildingsPos.push(position);
+                } else {
+                    farBuildingsHeights.push(height);
+                    farBuildingsPos.push(position);
+                }
+            }
         }
 
         function draw_smog() {
-            // TODO: Complétez cette fonction pour la partie 1
+            // Créer un gradient linéaire vertical pour simuler le smog
+            const gradient = graphics.createLinearGradient(0, 0, 0, canvas.height);
+
+            // Ajouter des étapes de couleur au gradient
+            gradient.addColorStop(0, "rgba(0, 0, 0, 0)"); 
+            gradient.addColorStop(1, "rgba(0, 0, 0, 0.3)"); 
+
+            // Appliquer le gradient au fond du canvas
+            graphics.fillStyle = gradient;
+            graphics.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         function draw() {
@@ -88,11 +129,67 @@
         }
 
         function draw_background(){
-            // TODO: Complétez cette fonction pour la partie 1
+            // le ciel
+            const gradient = graphics.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, "rgb(0, 0, 0)"); // Couleur en haut du ciel (noir)
+            gradient.addColorStop(1, "rgb(179, 102, 255)"); // Couleur en bas du ciel (votre couleur de choix)
+
+            graphics.fillStyle = gradient;
+            graphics.fillRect(0, 0, canvas.width, canvas.height);
+
+            // les étoiles
+            graphics.fillStyle = "rgb(255,255,255)";
+            graphics.strokeStyle = "rgb(230,230,230)";
+            graphics.lineWidth = 2;
+
+            for(constellation of constellations){
+                for(const star of constellation){
+                    graphics.beginPath();
+                    graphics.arc(star.x * canvas.width, star.y * canvas.height, 3, 0, 2 * Math.PI);
+                    graphics.fill();
+                    graphics.closePath();
+                }
+            
+        
+                // Dessiner les connexions des étoiles dans la constellation
+                for (let i = 2; i < constellation.length - 1; i++) {
+                    for (let j = i + 1; j < constellation.length; j++) {
+                        const star1 = constellation[i];
+                        const star2 = constellation[j];
+
+                        // Dessiner une ligne en pointillé entre les étoiles
+                        graphics.setLineDash([1, 3]); // Lignes pointillées
+                        graphics.beginPath();
+                        //if (Math.random() < 0.5) {
+                            graphics.moveTo(star1.x * canvas.width, star1.y * canvas.height);
+                            graphics.lineTo(star2.x * canvas.width, star2.y * canvas.height);
+                        //} 
+                        graphics.stroke();
+                        graphics.closePath();
+                        graphics.setLineDash([]); // Réinitialiser le motif des lignes
+                    }
+                }  
+            }    
         }
 
         function draw_city(){
-            // TODO: Complétez cette fonction pour la partie 2
+            for (let i = 0; i < farBuildingsHeights.length; i++) {
+                graphics.fillStyle = far_building_color;
+                graphics.fillRect(farBuildingsPos[i], canvas.height - farBuildingsHeights[i], buildingWidth * canvas.width, farBuildingsHeights[i]);
+                farBuildingsPos[i] += speed * 0.1;
+            }
+
+            for (let i = 0; i < middleBuildingsHeights.length; i++) {
+                graphics.fillStyle = middle_building_color;
+                graphics.fillRect(middleBuildingsPos[i], canvas.height - middleBuildingsHeights[i], buildingWidth * canvas.width, middleBuildingsHeights[i]);
+                middleBuildingsPos[i] += speed * 0.3; 
+            }
+
+            for (let i = 0; i < closeBuildingsHeights.length; i++) {
+                graphics.fillStyle = close_build_color;
+                graphics.fillRect(closeBuildingsPos[i], canvas.height - closeBuildingsHeights[i], buildingWidth * canvas.width, closeBuildingsHeights[i]);
+                closeBuildingsPos[i] += speed * 0.5; 
+            }
         }
 
         function updateVesselPosition(e){
