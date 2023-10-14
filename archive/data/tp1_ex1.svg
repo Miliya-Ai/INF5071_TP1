@@ -10,15 +10,66 @@
   <!-- Éléments réutilisables -->
 
   <!-- Arrière-plan sous forme d'image -->
-
+  <image  x="0" y="0" width="1" height="1" xlink:href="tp1_ex1_ciel.jpg" />
   <!-- Corps -->
   
   <!-- Visage (Yeux et Sourire) -->
- 
-  <!-- Texte 1 : Inspirez -->
+  <g  transform-origin="0.5 1">
+   <image  x="0" y="0" width="1" height="1" xlink:href="tp1_ex1_prepa.png" scale="100"/> 
+    <animateTransform
+      attributeName="transform"
+      attributeType="XML"
+      type="scale"
+      from="0.5 0.5"
+      to="1 1"
+      dur="5s"
+      id="bigger"
+      begin="0; smaller.end + 5s"
+      fill="freeze"
+      />
+      <animateTransform
+      attributeName="transform"
+      attributeType="XML"
+      type="scale"
+      from="1 1"
+      to="0.5 0.5"
+      dur="5s"
+      begin="bigger.end + 5s"
+      id="smaller"
+      fill="freeze"
+      />
+  </g>
 
+   <style>
+   .inspirer {
+      font: italic 0.1px serif;
+      fill: white;
+    }
+    .expirer {
+      font: italic 0.1px sans-serif;
+      fill: white
+    }
+  </style>
+  <!-- Texte 1 : Inspirez -->
+  <text x="0.3" y="0.2" class="inspirer" opacity="0"> Inspirez
+    <animate 
+          attributeName="opacity"
+          values="0;1;0" 
+          dur="5s"
+          begin="0; expire.end + 5s"
+          id="inspire"/>
+ </text>
   <!-- Texte 2 : Expirez -->
+  <text x="0.3" y="0.2" class="expirer" opacity="0">Expirez
+    <animate 
+        attributeName="opacity"
+        values="0;1;0" 
+        dur="5s"
+        begin="inspire.end + 5s"
+        id="expire"/>
+  </text>
      
 </svg>
 
 <!-- Note : inspiration: 5s, pause: 5s, expiration: 5s, pause: 5s-->
+
