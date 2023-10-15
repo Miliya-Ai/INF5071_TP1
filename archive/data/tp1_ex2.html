@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>TP1 - Ex2 - Solution</title>
+    <!-- fureteur web: Chrome -->
     <style>
         body{
             margin: 0;
@@ -34,6 +35,9 @@
 
         // Propriétés du vaisseau 
         let vesselPos = {x:0, y:0}
+        let tailAcceleration = 0;
+        const vaisseauRadiusX = 50;
+        const vaisseauRadiusY = 15;
         const maxSpeed = -25;
         const minSpeed = -10;
         let speed = minSpeed; // pixels per millisecond
@@ -123,9 +127,31 @@
             // Draw smog
             draw_smog();
         }
-
+        
         function draw_vessel(){
-            // TODO: Complétez cette fonction pour la partie 3
+            // Définir la transformation pour déplacer le vaisseau à la position actuelle
+            graphics.setTransform(1, 0, 0, 1, vesselPos.x, vesselPos.y);
+
+            // initialiser le dessin du vaisseau
+            graphics.beginPath();
+            graphics.ellipse(canvas.width/2, canvas.height/2, vaisseauRadiusX, vaisseauRadiusY, 0, 1, Math.PI * 2);
+            graphics.fillStyle = "pink";
+            graphics.fill();
+
+            graphics.shadowBlur = 10;
+            graphics.shadowColor = "orange";
+
+            graphics.beginPath();
+            graphics.moveTo(canvas.width/2 - vaisseauRadiusX * 2 - tailAcceleration, canvas.height/2 - vaisseauRadiusY );
+            graphics.lineTo(canvas.width/2 - 30, canvas.height/2);
+            graphics.lineTo(canvas.width/2 - vaisseauRadiusX * 2 - tailAcceleration, canvas.height/2 + vaisseauRadiusY);
+            graphics.fillStyle = "rgb(255,179,191)";
+            graphics.fill();
+            
+            // Réinitialiser la transformation pour ne pas affecter d'autres dessins
+            graphics.setTransform(1, 0, 0, 1, 0, 0);
+            graphics.shadowBlur = 0;
+            graphics.shadowColor = "transparent";
         }
 
         function draw_background(){
@@ -149,7 +175,6 @@
                     graphics.fill();
                     graphics.closePath();
                 }
-            
         
                 // Dessiner les connexions des étoiles dans la constellation
                 for (let i = 2; i < constellation.length - 1; i++) {
@@ -173,44 +198,68 @@
         }
 
         function draw_city(){
+            // Initialiser la transformation pour déplacer la ville à la position actuelle
             for (let i = 0; i < farBuildingsHeights.length; i++) {
                 graphics.fillStyle = far_building_color;
                 graphics.fillRect(farBuildingsPos[i], canvas.height - farBuildingsHeights[i], buildingWidth * canvas.width, farBuildingsHeights[i]);
-                farBuildingsPos[i] += speed * 0.1;
+                farBuildingsPos[i] += speed;
+                if (farBuildingsPos[i] < -buildingWidth * canvas.width) {
+                    farBuildingsPos[i] = canvas.width;
+                }
             }
 
             for (let i = 0; i < middleBuildingsHeights.length; i++) {
                 graphics.fillStyle = middle_building_color;
                 graphics.fillRect(middleBuildingsPos[i], canvas.height - middleBuildingsHeights[i], buildingWidth * canvas.width, middleBuildingsHeights[i]);
-                middleBuildingsPos[i] += speed * 0.3; 
+                middleBuildingsPos[i] += speed - 5; 
+                if (middleBuildingsPos[i] < -buildingWidth * canvas.width) {
+                    middleBuildingsPos[i] = canvas.width;
+                }
             }
 
             for (let i = 0; i < closeBuildingsHeights.length; i++) {
                 graphics.fillStyle = close_build_color;
                 graphics.fillRect(closeBuildingsPos[i], canvas.height - closeBuildingsHeights[i], buildingWidth * canvas.width, closeBuildingsHeights[i]);
-                closeBuildingsPos[i] += speed * 0.5; 
+                closeBuildingsPos[i] += speed - 10; 
+                if (closeBuildingsPos[i] < -buildingWidth * canvas.width) {
+                    closeBuildingsPos[i] = canvas.width;
+                }
             }
         }
 
         function updateVesselPosition(e){
-            // TODO: Complétez cette fonction pour la partie 4
             // Touche W ou Up
-            // if ( e.keyCode == ???  ) {
-                // COMPLÉTEZ
-            // }
+            if ( e.keyCode == 87 || e.keyCode == 38) {
+                vesselPos.y = Math.max(vesselPos.y - 10, - canvas.height/2 + vaisseauRadiusY);
+            }
 
             // Touche S ou Down
+            if ( e.keyCode == 83 || e.keyCode == 40) {
+                vesselPos.y = Math.min(vesselPos.y + 10, canvas.height/2 - vaisseauRadiusY);
+            }
 
             // Touche A ou Left
+            if ( e.keyCode == 65 || e.keyCode == 37) {
+                vesselPos.x = Math.max(vesselPos.x - 10, - canvas.width/2 + vaisseauRadiusX * 2);
+            }
 
             // Touche D ou Right
+            if ( e.keyCode == 68 || e.keyCode == 39) {
+                vesselPos.x = Math.min(vesselPos.x + 10, canvas.width/2 - vaisseauRadiusX);
+            }
 
             // Touche Espace
+            if ( e.keyCode == 32) {
+                // Augmenter la vitesse et la force de poussée du vaisseau
+                speed = Math.min(speed - acceleration * 5, maxSpeed);
+                tailAcceleration = Math.min(tailAcceleration + acceleration * 5, 50);
+            }
         }
 
         function releaseSpace(e){
-            // TODO: Complétez cette fonction pour la partie 4
-            // COMPLÉTEZ
+            // changer la position de la plume de propulsion
+            speed = Math.max(speed, minSpeed);
+            tailAcceleration = 0;
         }
 
         function init() {
@@ -229,9 +278,6 @@
         }
 
         function update(){
-            // Mise à jour de la position des édifices
-            // TODO: Complétez cette fonction pour la partie 2
-
             // On dessine !
             draw()
 
